@@ -4,8 +4,6 @@ var fs = require('fs');
 var app = express.createServer(express.logger());
 
 app.get('/', function(request, response) {
-  var options = [];
-  options.encoding = 'utf8';
   var fileContent = fs.readFileSync('index.html');
   response.send(fileContent.toString('utf8'));
 });
