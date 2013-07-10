@@ -56,9 +56,8 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
-var checkHtmlUrl = function(htmlurl, checksfile) {
-    rest.get(htmlurl).on('complete', function(data) {
-      $ = cheerio.load(data);
+var checkHtmlUrl = function(html, checksfile) {
+      $ = cheerio.load(html);
       var checks = loadChecks(checksfile).sort();
       var out = {};
       for(var ii in checks) {
@@ -66,7 +65,6 @@ var checkHtmlUrl = function(htmlurl, checksfile) {
           out[checks[ii]] = present;
       }
       return out;  
-    });
 };
 
 var clone = function(fn) {
@@ -82,16 +80,19 @@ if(require.main == module) {
         .option('-u, --url <html_url>', 'URL to index.html')
         .parse(process.argv);
     if(program.url) {
-      checkHtmlUrl(program.url, program.checks, function(checkJson) {
+      rest.get(program.url).on('complete', function(data) {
+        checkJson = checkHtmlUrl(data, program.checks);
         var outJson = JSON.stringify(checkJson, null, 4);
         console.log(outJson);
       });  
+
     }
     else {
       var checkJson = checkHtmlFile(program.file, program.checks);
+      var outJson = JSON.stringify(checkJson, null, 4);
+      console.log(outJson);
     }
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
+    
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
